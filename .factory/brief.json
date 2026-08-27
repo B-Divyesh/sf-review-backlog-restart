@@ -1,0 +1,19 @@
+{
+  "slug": "review-backlog-restart",
+  "title": "Review Backlog Restart",
+  "territory": "utilities",
+  "user": "Spaced-repetition users returning after a break who need an honest, manageable restart plan that protects high-risk material without forcing an all-night catch-up session.",
+  "smallest_useful_product": "Local companion that imports an Anki CSV export, asks for daily minutes and deadline, simulates three recovery plans, flags highest-risk cards, and exports a tagged action list.",
+  "success_measure": "At least 50% of users with a 100+ card backlog follow a plan for seven days and reduce due cards by 30% without resetting the collection.",
+  "artifact_class": "pwa-offline",
+  "monetization": "free",
+  "constraints": [
+    "Read-only imports",
+    "Do not alter scheduling data",
+    "Clearly label projections as estimates",
+    "Keep all study history local"
+  ],
+  "non_goals": ["Syncing to Anki", "Replacing FSRS", "Making retention guarantees"],
+  "confidence": 5,
+  "state": "RESEARCHED"
+}

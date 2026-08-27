@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Three paper cards crossing an amber bridge">
+  <rect width="512" height="512" rx="104" fill="#101A23"/>
+  <path d="M75 355c93-15 135-91 190-91 50 0 80 68 172 37" fill="none" stroke="#F1B84B" stroke-width="28" stroke-linecap="round"/>
+  <path d="M117 310V139l122 19v171z" fill="#F2EBDD" stroke="#9AC6C5" stroke-width="8"/>
+  <path d="M209 265V98l119 34v160z" fill="#FFF9ED" stroke="#9AC6C5" stroke-width="8"/>
+  <path d="M302 319V163l103-35v158z" fill="#F2EBDD" stroke="#9AC6C5" stroke-width="8"/>
+  <circle cx="363" cy="212" r="13" fill="#E76850"/>
+</svg>
