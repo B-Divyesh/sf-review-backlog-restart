@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://review-backlog-restart.sociobot.in/sitemap.xml
