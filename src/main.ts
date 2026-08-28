@@ -2,6 +2,7 @@ import './style.css';
 import { csvEscape, parseAnkiCsv } from './csv';
 import { assignCards, simulatePlans } from './plans';
 import { clearState, loadState, saveState } from './store';
+import { cardNoun } from './format';
 import type { AppState, Card, PlanKind, RecoveryPlan, Settings } from './types';
 
 const SAMPLE = `Deck,Front,Back,Due,Interval,Lapses,Reviews,Tags
@@ -72,7 +73,7 @@ function planCard(plan: RecoveryPlan): string {
   const deadlineLine = plan.deadlineMet
     ? `<span class="status success">${icon('check')} On target</span>`
     : `<span class="status caution">${icon('warning')} ${plan.cardsByDeadline} of ${state?.cards.length} by date</span>`;
-  return `<label class="plan-card ${selected ? 'selected' : ''}" data-kind="${plan.kind}"><input type="radio" name="plan" value="${plan.kind}" ${selected ? 'checked' : ''} ${routeSaveInFlight ? 'disabled' : ''} /><span class="plan-kicker">${e(plan.kicker)}</span><strong class="plan-name">${e(plan.name)}</strong><span class="plan-description">${e(plan.description)}</span><span class="plan-load"><b>${plan.dailyCards}</b> cards / day <small>≈ ${plan.dailyMinutes} min</small></span><span class="plan-metrics"><span><b>${plan.projectedDays}</b> days projected</span><span><b>${plan.highRiskByDay3}/${highTotal}</b> high-risk by day 3</span></span>${deadlineLine}<span class="radio-mark" aria-hidden="true"></span></label>`;
+  return `<label class="plan-card ${selected ? 'selected' : ''}" data-kind="${plan.kind}"><input type="radio" name="plan" value="${plan.kind}" ${selected ? 'checked' : ''} ${routeSaveInFlight ? 'disabled' : ''} /><span class="plan-kicker">${e(plan.kicker)}</span><strong class="plan-name">${e(plan.name)}</strong><span class="plan-description">${e(plan.description)}</span><span class="plan-load"><b>${plan.dailyCards}</b> ${cardNoun(plan.dailyCards)} / day <small>≈ ${plan.dailyMinutes} min</small></span><span class="plan-metrics"><span><b>${plan.projectedDays}</b> days projected</span><span><b>${plan.highRiskByDay3}/${highTotal}</b> high-risk by day 3</span></span>${deadlineLine}<span class="radio-mark" aria-hidden="true"></span></label>`;
 }
 
 function planSection(): string {

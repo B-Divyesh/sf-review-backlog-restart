@@ -1,5 +1,6 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import { isPrecacheAsset } from './precache-assets.mjs';
 
 const root = new URL('../dist/', import.meta.url);
 async function walk(path) {
@@ -12,7 +13,7 @@ async function walk(path) {
   }
   return files;
 }
-const assets = await walk(root);
+const assets = (await walk(root)).filter(isPrecacheAsset);
 const source = await readFile(new URL('../src/sw-template.js', import.meta.url), 'utf8');
 const version = Date.now().toString(36);
 await writeFile(new URL('sw.js', root), source.replace('__VERSION__', version).replace('__ASSETS__', JSON.stringify(assets)));

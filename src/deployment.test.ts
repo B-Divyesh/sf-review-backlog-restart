@@ -1,6 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
+const { isPrecacheAsset } = await import(new URL('../scripts/precache-assets.mjs', import.meta.url).href) as {
+  isPrecacheAsset: (assetPath: string) => boolean;
+};
+
 const root = new URL('../', import.meta.url);
 const headers = readFileSync(new URL('public/_headers', root), 'utf8');
 const staticWebAppConfig = JSON.parse(readFileSync(new URL('public/staticwebapp.config.json', root), 'utf8')) as {
@@ -16,6 +20,13 @@ function routeHeaders(route: string): Record<string, string> {
 }
 
 describe('static deployment response policy', () => {
+  it('excludes deployment-only configuration from the browser precache', () => {
+    expect(isPrecacheAsset('/staticwebapp.config.json')).toBe(false);
+    expect(isPrecacheAsset('/_headers')).toBe(false);
+    expect(isPrecacheAsset('/assets/main-abc123.js')).toBe(true);
+    expect(isPrecacheAsset('/manifest.webmanifest')).toBe(true);
+  });
+
   it('keeps hashed assets immutable while allowing the service worker to update', () => {
     expect(headers).toContain('/assets/*\n  Cache-Control: public, max-age=31536000, immutable');
     expect(headers).toContain('/sw.js\n  Cache-Control: no-cache');
