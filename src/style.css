@@ -28,6 +28,7 @@ button, input { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-underline-offset: .23em; }
 button { color: inherit; }
+button:disabled { cursor: wait; opacity: .72; }
 :focus-visible { outline: 3px solid var(--sky); outline-offset: 4px; }
 ::selection { color: var(--amber-ink); background: var(--amber); }
 
@@ -58,6 +59,7 @@ h1 { max-width: 660px; margin: 0; font-size: clamp(44px, 5.3vw, 72px); line-heig
 .button:active { transform: translateY(1px); }
 .button.primary { color: var(--amber-ink); background: var(--amber); box-shadow: 7px 7px 0 #6a5225; }
 .button.primary:hover { box-shadow: 4px 4px 0 #6a5225; }
+.button:disabled, .button:disabled:hover { transform: none; box-shadow: 7px 7px 0 #6a5225; }
 .button.secondary { color: var(--chalk); border-color: var(--sky); background: transparent; }
 .button.secondary:hover { background: rgb(154 198 197 / 13%); }
 .button.danger { color: #fff; background: #a83e31; }
@@ -159,11 +161,15 @@ td small { display: block; margin-top: 3px; color: var(--muted); }
 .reason { display: block; color: var(--muted); font-size: 13px; }
 .reason::before { content: "·"; margin-right: 5px; color: #7d4f18; font-weight: 900; }
 .risk { min-width: 150px; display: grid; grid-template-columns: 1fr auto; gap: 5px 9px; color: var(--muted); font-size: 12px; }
-.risk i { grid-column: 1 / -1; height: 5px; background: linear-gradient(to right, currentColor var(--risk), #d1cec4 var(--risk)); }
+.risk progress { grid-column: 1 / -1; width: 100%; height: 5px; appearance: none; accent-color: currentColor; }
+.risk progress::-webkit-progress-bar { background: #d1cec4; }
+.risk progress::-webkit-progress-value { background: currentColor; }
+.risk progress::-moz-progress-bar { background: currentColor; }
 .risk b { color: var(--ink); font-variant-numeric: tabular-nums; }
 .risk.high { color: #a74335; }
 .risk.watch { color: #876013; }
 .risk.stable { color: #3d7049; }
+.persistence-note { margin: 16px 0 -4px; color: var(--muted); font-size: 14px; font-weight: 700; }
 .table-caption { color: var(--muted); font-size: 13px; }
 .checkin { margin-top: 42px; padding: 27px 30px; display: flex; align-items: center; justify-content: space-between; gap: 30px; color: var(--chalk); background: var(--midnight); clip-path: polygon(0 0, 98% 0, 100% 24%, 100% 100%, 2% 100%, 0 72%); }
 .checkin h3 { margin: 0; font-size: 28px; }

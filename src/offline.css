@@ -1,0 +1,4 @@
+body { margin: 0; box-sizing: border-box; min-height: 100vh; padding: 24px; display: grid; place-items: center; color: #fff9ed; background: #101a23; font: 18px/1.6 system-ui, sans-serif; }
+main { max-width: 620px; }
+h1 { margin: 0 0 16px; color: #f1b84b; font: 46px/1.05 Georgia, serif; }
+a { display: inline-block; margin-top: 12px; padding: 14px 20px; border-radius: 99px; color: #101a23; background: #f1b84b; font-weight: 700; text-decoration: none; }

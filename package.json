@@ -7,11 +7,12 @@
     "dev": "vite",
     "test": "vitest run src",
     "test:e2e": "npm run build && playwright test",
+    "test:e2e:repeat": "npm run build && playwright test --repeat-each=10 --workers=1",
     "build": "tsc --noEmit && vite build && node scripts/build-sw.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "1.58.2",
     "@types/node": "^24.3.0",
     "axe-core": "^4.13.0",
     "typescript": "^5.9.2",

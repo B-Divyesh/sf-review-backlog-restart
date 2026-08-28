@@ -37,11 +37,11 @@ The production build command is exactly `npm run build`. It type-checks, builds 
 The real-browser test covers persistence, CSV download, and an offline reload:
 
 ```sh
-npx playwright install chromium
 npm run test:e2e
+npm run test:e2e:repeat
 ```
 
-Preview the production build with `npm run preview`. Deploy the contents of `dist/` to any static host that serves `/privacy/` and `/terms/` directory indexes and permits the root-scoped `/sw.js` service worker.
+Preview the production build with `npm run preview`. Deploy the contents of `dist/` to a static host that serves `/privacy/` and `/terms/` directory indexes and permits the root-scoped `/sw.js` service worker. The included `_headers` deployment configuration supplies the CSP, clickjacking protection, manifest MIME type, update-safe service-worker policy, and immutable cache policy for `/assets/*`; the target host must honor this standard static-host headers file.
 
 ## Privacy and offline behavior
 

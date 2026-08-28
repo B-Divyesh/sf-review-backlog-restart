@@ -15,6 +15,10 @@ Geography,Salar de Uyuni,salt flat in Bolivia,2026-07-20,20,0,9,place`;
 let state: AppState | null = null;
 let plans: RecoveryPlan[] = [];
 let lastWarnings: string[] = [];
+// A route choice changes the exported order. Keep the export unavailable until
+// that choice has reached IndexedDB so a fast follow-up click cannot export a
+// transient route or reload before the selected route is durable.
+let routeSaveInFlight = false;
 const app = document.querySelector<HTMLDivElement>('#app') as HTMLDivElement;
 if (!app) throw new Error('App root was not found.');
 
@@ -68,14 +72,15 @@ function planCard(plan: RecoveryPlan): string {
   const deadlineLine = plan.deadlineMet
     ? `<span class="status success">${icon('check')} On target</span>`
     : `<span class="status caution">${icon('warning')} ${plan.cardsByDeadline} of ${state?.cards.length} by date</span>`;
-  return `<label class="plan-card ${selected ? 'selected' : ''}" data-kind="${plan.kind}"><input type="radio" name="plan" value="${plan.kind}" ${selected ? 'checked' : ''} /><span class="plan-kicker">${e(plan.kicker)}</span><strong class="plan-name">${e(plan.name)}</strong><span class="plan-description">${e(plan.description)}</span><span class="plan-load"><b>${plan.dailyCards}</b> cards / day <small>≈ ${plan.dailyMinutes} min</small></span><span class="plan-metrics"><span><b>${plan.projectedDays}</b> days projected</span><span><b>${plan.highRiskByDay3}/${highTotal}</b> high-risk by day 3</span></span>${deadlineLine}<span class="radio-mark" aria-hidden="true"></span></label>`;
+  return `<label class="plan-card ${selected ? 'selected' : ''}" data-kind="${plan.kind}"><input type="radio" name="plan" value="${plan.kind}" ${selected ? 'checked' : ''} ${routeSaveInFlight ? 'disabled' : ''} /><span class="plan-kicker">${e(plan.kicker)}</span><strong class="plan-name">${e(plan.name)}</strong><span class="plan-description">${e(plan.description)}</span><span class="plan-load"><b>${plan.dailyCards}</b> cards / day <small>≈ ${plan.dailyMinutes} min</small></span><span class="plan-metrics"><span><b>${plan.projectedDays}</b> days projected</span><span><b>${plan.highRiskByDay3}/${highTotal}</b> high-risk by day 3</span></span>${deadlineLine}<span class="radio-mark" aria-hidden="true"></span></label>`;
 }
 
 function planSection(): string {
   if (!state) return '';
   const selected = plans.find((plan) => plan.kind === state?.selectedPlan) ?? plans[1];
   const dates = selected.schedule.slice(0, 7);
-  return `<section class="workspace-section routes-section" aria-labelledby="routes-title"><div class="section-index">03 / Choose a route</div><div class="section-heading"><div><h2 id="routes-title">Three honest ways through.</h2><p>Every route respects your daily time box. “Clear by date” will say when the math does not fit.</p></div><span class="estimate-stamp">Estimates, not guarantees</span></div><fieldset class="plan-grid"><legend class="visually-hidden">Choose a recovery route</legend>${plans.map(planCard).join('')}</fieldset><div class="selected-detail"><div><p class="eyebrow">First seven days · ${e(selected.name)}</p><h3>A small bridge, day by day.</h3><div class="week-strip" role="list" aria-label="First seven scheduled days">${dates.map((day) => `<div role="listitem"><time datetime="${day.date}">${new Intl.DateTimeFormat('en', { weekday: 'short' }).format(new Date(`${day.date}T12:00:00`))}</time><strong>${day.cards}</strong><span>cards</span><small>${day.highRisk} high-risk</small></div>`).join('')}${dates.length < 7 ? `<div class="clear-marker" role="listitem">${icon('leaf')}<strong>Clear</strong><span>after ${selected.projectedDays} day${selected.projectedDays === 1 ? '' : 's'}</span></div>` : ''}</div></div><div class="route-note"><strong>Why this ordering?</strong><p>${selected.kind === 'protect' ? 'Fragile cards come first: longer relative delay, more lapses, and younger intervals raise priority.' : selected.kind === 'balanced' ? 'Urgent cards lead, with overdue easier cards mixed in to keep visible progress.' : 'Short-interval cards lead so the list clears within the available capacity.'}</p><button class="text-button inline" data-action="method">Read the scoring note</button></div></div></section>`;
+  const savingNote = routeSaveInFlight ? '<p class="persistence-note" id="route-save-note" role="status">Saving your route choice locally…</p>' : '';
+  return `<section class="workspace-section routes-section" aria-labelledby="routes-title" aria-busy="${routeSaveInFlight}"><div class="section-index">03 / Choose a route</div><div class="section-heading"><div><h2 id="routes-title">Three honest ways through.</h2><p>Every route respects your daily time box. “Clear by date” will say when the math does not fit.</p></div><span class="estimate-stamp">Estimates, not guarantees</span></div><fieldset class="plan-grid"><legend class="visually-hidden">Choose a recovery route</legend>${plans.map(planCard).join('')}</fieldset>${savingNote}<div class="selected-detail"><div><p class="eyebrow">First seven days · ${e(selected.name)}</p><h3>A small bridge, day by day.</h3><div class="week-strip" role="list" aria-label="First seven scheduled days">${dates.map((day) => `<div role="listitem"><time datetime="${day.date}">${new Intl.DateTimeFormat('en', { weekday: 'short' }).format(new Date(`${day.date}T12:00:00`))}</time><strong>${day.cards}</strong><span>cards</span><small>${day.highRisk} high-risk</small></div>`).join('')}${dates.length < 7 ? `<div class="clear-marker" role="listitem">${icon('leaf')}<strong>Clear</strong><span>after ${selected.projectedDays} day${selected.projectedDays === 1 ? '' : 's'}</span></div>` : ''}</div></div><div class="route-note"><strong>Why this ordering?</strong><p>${selected.kind === 'protect' ? 'Fragile cards come first: longer relative delay, more lapses, and younger intervals raise priority.' : selected.kind === 'balanced' ? 'Urgent cards lead, with overdue easier cards mixed in to keep visible progress.' : 'Short-interval cards lead so the list clears within the available capacity.'}</p><button class="text-button inline" data-action="method">Read the scoring note</button></div></div></section>`;
 }
 
 function riskSection(): string {
@@ -83,7 +88,7 @@ function riskSection(): string {
   const selected = plans.find((plan) => plan.kind === state?.selectedPlan) ?? plans[1];
   const assigned = assignCards(state.cards, selected);
   const top = assigned.slice(0, 8);
-  return `<section class="workspace-section action-section" aria-labelledby="action-title"><div class="section-index">04 / Carry the list back</div><div class="section-heading"><div><h2 id="action-title">Your next cards, with reasons.</h2><p>The exported list adds action tags. It never writes to or reschedules your collection.</p></div><button class="button primary" data-action="export-csv">${icon('download')} Export tagged action list</button></div><div class="table-wrap" tabindex="0" aria-label="Scrollable priority card table"><table><thead><tr><th>Day</th><th>Card</th><th>Why it’s here</th><th>Risk estimate</th></tr></thead><tbody>${top.map((card) => `<tr><td><span class="day-tag">Day ${card.actionDay}</span></td><td><strong>${e(stripHtml(card.front).slice(0, 90))}</strong><small>${e(card.deck)}</small></td><td>${card.riskReasons.map((reason) => `<span class="reason">${e(reason)}</span>`).join('')}</td><td><span class="risk ${card.riskBand}"><i style="--risk:${card.risk}%"></i><b>${card.risk}</b> / 100 · ${card.riskBand}</span></td></tr>`).join('')}</tbody></table></div><p class="table-caption">Showing the first 8 of ${state.cards.length} cards in this route. Scores compare cards in this import; they do not estimate recall probability.</p>${checkInPanel(selected)}</section>`;
+  return `<section class="workspace-section action-section" aria-labelledby="action-title"><div class="section-index">04 / Carry the list back</div><div class="section-heading"><div><h2 id="action-title">Your next cards, with reasons.</h2><p>The exported list adds action tags. It never writes to or reschedules your collection.</p></div><button class="button primary" data-action="export-csv" ${routeSaveInFlight ? 'disabled aria-describedby="route-save-note"' : ''}>${icon('download')} Export tagged action list</button></div><div class="table-wrap" tabindex="0" aria-label="Scrollable priority card table"><table><thead><tr><th>Day</th><th>Card</th><th>Why it’s here</th><th>Risk estimate</th></tr></thead><tbody>${top.map((card) => `<tr><td><span class="day-tag">Day ${card.actionDay}</span></td><td><strong>${e(stripHtml(card.front).slice(0, 90))}</strong><small>${e(card.deck)}</small></td><td>${card.riskReasons.map((reason) => `<span class="reason">${e(reason)}</span>`).join('')}</td><td><span class="risk ${card.riskBand}"><progress aria-label="Relative risk score ${card.risk} out of 100" max="100" value="${card.risk}"></progress><b>${card.risk}</b> / 100 · ${card.riskBand}</span></td></tr>`).join('')}</tbody></table></div><p class="table-caption">Showing the first 8 of ${state.cards.length} cards in this route. Scores compare cards in this import; they do not estimate recall probability.</p>${checkInPanel(selected)}</section>`;
 }
 
 function checkInPanel(plan: RecoveryPlan): string {
@@ -189,9 +194,25 @@ async function updateSettings(event: SubmitEvent): Promise<void> {
 }
 
 async function selectPlan(event: Event): Promise<void> {
-  if (!state) return;
+  if (!state || routeSaveInFlight) return;
+  const previousPlan = state.selectedPlan;
   state.selectedPlan = (event.currentTarget as HTMLInputElement).value as PlanKind;
-  await saveState(state);
+  routeSaveInFlight = true;
+  render();
+  let saved = false;
+  try {
+    await saveState(state);
+    saved = true;
+  } catch {
+  } finally {
+    routeSaveInFlight = false;
+  }
+  if (!saved) {
+    state.selectedPlan = previousPlan;
+    render();
+    showToast('Your route could not be saved locally. Try selecting it again.', 'error');
+    return;
+  }
   render();
   document.querySelector('#routes-title')?.scrollIntoView({ block: 'start' });
   showToast(`${plans.find((plan) => plan.kind === state?.selectedPlan)?.name ?? 'Route'} selected.`);
