@@ -1,6 +1,6 @@
 # Repair handoff — Review Backlog Restart
 
-## Release status: repaired locally; deployment verification pending push
+## Release status: repaired locally and pushed; static rollout awaiting factory deployment
 
 This repair addresses every release-blocking finding in the independent verification report for candidate `8e9406ccf2001053037781a312d1cffaaeeec3f6` (`78b13fa4e0d0543382fa79b4a4a8ef44fdb41662`). The researched brief, visual thesis, local-first model, and all previously passing planner behavior are preserved.
 
@@ -35,7 +35,7 @@ npx playwright test tests/app.spec.ts --repeat-each=10 --workers=1
 
 ## Deployment notes
 
-Static deployment configuration is shipped as `dist/_headers` through Vite’s public-file copy. The deployment target must honor standard `_headers` rules; after the repair commit is pushed, verify the live `/assets/*`, `/manifest.webmanifest`, and `/sw.js` responses before release approval.
+Static deployment configuration is shipped as `dist/_headers` through Vite’s public-file copy. Repair commit `85ca187` was pushed to `main` on 2026-08-28. At the final check, <https://review-backlog-restart.sociobot.in/> still served the verifier’s older `main-C1PNtO1K.js` artifact and its old `max-age=30` / `application/octet-stream` responses, so live repair verification is intentionally not claimed here. The product contract assigns infrastructure deployment to the factory; once its static rollout completes, verify `/assets/*`, `/manifest.webmanifest`, and `/sw.js` response headers before release approval.
 
 ## Known product boundaries
 
