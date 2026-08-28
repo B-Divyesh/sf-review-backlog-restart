@@ -3,6 +3,17 @@ import { describe, expect, it } from 'vitest';
 
 const root = new URL('../', import.meta.url);
 const headers = readFileSync(new URL('public/_headers', root), 'utf8');
+const staticWebAppConfig = JSON.parse(readFileSync(new URL('public/staticwebapp.config.json', root), 'utf8')) as {
+  globalHeaders: Record<string, string>;
+  routes: Array<{ route: string; headers: Record<string, string> }>;
+  mimeTypes: Record<string, string>;
+};
+
+function routeHeaders(route: string): Record<string, string> {
+  const match = staticWebAppConfig.routes.find((entry) => entry.route === route);
+  if (!match) throw new Error(`Missing static-host route policy for ${route}`);
+  return match.headers;
+}
 
 describe('static deployment response policy', () => {
   it('keeps hashed assets immutable while allowing the service worker to update', () => {
@@ -24,5 +35,16 @@ describe('static deployment response policy', () => {
     expect(headers).toContain("style-src 'self'");
     expect(offlinePage).not.toMatch(/<style|style=/i);
     expect(appSource).not.toContain('style="');
+  });
+
+  it('maps the portable response policy to the Azure Static Web Apps deployment configuration', () => {
+    expect(routeHeaders('/assets/*')['Cache-Control']).toBe('public, max-age=31536000, immutable');
+    expect(routeHeaders('/sw.js')['Cache-Control']).toBe('no-cache');
+    expect(routeHeaders('/manifest.webmanifest')['Cache-Control']).toBe('no-cache');
+    expect(staticWebAppConfig.mimeTypes['.webmanifest']).toBe('application/manifest+json; charset=utf-8');
+    expect(staticWebAppConfig.globalHeaders['Content-Security-Policy']).toContain("worker-src 'self'");
+    expect(staticWebAppConfig.globalHeaders['Content-Security-Policy']).toContain("frame-ancestors 'none'");
+    expect(staticWebAppConfig.globalHeaders['Permissions-Policy']).toContain('camera=()');
+    expect(staticWebAppConfig.globalHeaders['X-Frame-Options']).toBe('DENY');
   });
 });

@@ -41,7 +41,7 @@ npm run test:e2e
 npm run test:e2e:repeat
 ```
 
-Preview the production build with `npm run preview`. Deploy the contents of `dist/` to a static host that serves `/privacy/` and `/terms/` directory indexes and permits the root-scoped `/sw.js` service worker. The included `_headers` deployment configuration supplies the CSP, clickjacking protection, manifest MIME type, update-safe service-worker policy, and immutable cache policy for `/assets/*`; the target host must honor this standard static-host headers file.
+Preview the production build with `npm run preview`. Deploy the contents of `dist/` to a static host that serves `/privacy/` and `/terms/` directory indexes and permits the root-scoped `/sw.js` service worker. The build includes both `_headers` and `staticwebapp.config.json`: the latter is the production Azure Static Web Apps configuration used by the factory deploy. Both declare the CSP and clickjacking protection, a manifest MIME type, an update-safe service-worker policy, and immutable caching for `/assets/*`.
 
 ## Privacy and offline behavior
 
