@@ -8,7 +8,7 @@ Implementation SHA: `85938f1cabccf926916d63e109500fd98b6d69c0`.
 
 Documentation verification SHA: `f4ffc29c5c6722e9bdb09d073f2e3421ef68236a`.
 
-The implementation commit was pushed to `main` on 2026-09-06. At the final cold-live check during this repair, HTTPS still served the previous `main-4C3LZ64L.js` build and the repository deployment endpoint had no record for the implementation SHA. This is a factory deployment-controller delay, not a code failure; no product-side deployment command is configured or authorized. Re-run the live checks below after the controller publishes `85938f1`.
+The implementation commit was pushed to `main` on 2026-09-06. At the final cold-live check during this repair, HTTPS still served the previous `main-4C3LZ64L.js` build and the repository deployment endpoint had no record for the implementation SHA. A fresh live smoke still reported the old title, “Review Backlog Restart — a humane return to your cards,” and its old unlabeled-control result. This proves the new candidate is not yet live. It is a factory deployment-controller delay, not a code failure; no product-side deployment command is configured or authorized. Re-run the live checks below after the controller publishes `85938f1`.
 
 ## What changed
 
