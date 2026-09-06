@@ -1,13 +1,14 @@
 {
   "name": "review-backlog-restart",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "test": "vitest run src",
-    "test:e2e": "npm run build && playwright test",
-    "test:e2e:repeat": "npm run build && playwright test --repeat-each=10 --workers=1",
+    "test:claims": "npm run build && playwright test tests/claims.spec.ts --workers=1",
+    "test:e2e": "npm run build && playwright test tests/app.spec.ts tests/quality.spec.ts",
+    "test:e2e:repeat": "npm run build && playwright test tests/app.spec.ts tests/quality.spec.ts --repeat-each=10 --workers=1",
     "build": "tsc --noEmit && vite build && node scripts/build-sw.mjs",
     "preview": "vite preview"
   },

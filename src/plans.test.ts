@@ -38,4 +38,11 @@ describe('recovery plans', () => {
     expect(clear.dailyCards).toBe(10);
     expect(clear.cardsByDeadline).toBe(20);
   });
+
+  it('does not advertise more cards per day than the backlog contains', () => {
+    const [protect, balanced, clear] = simulatePlans(cards(6), { dailyMinutes: 25, secondsPerCard: 18, deadline: '2026-09-09' }, now);
+    expect([protect.dailyCards, balanced.dailyCards, clear.dailyCards]).toEqual([6, 6, 1]);
+    expect(protect.dailyMinutes).toBeLessThanOrEqual(25);
+    expect(balanced.schedule[0].cards).toBe(6);
+  });
 });

@@ -1,20 +1,27 @@
 import type { AppState } from './types';
 
-const DB_NAME = 'review-backlog-restart';
+export type StorageNamespace = 'real' | 'demo';
+
+// Demo data is held in a separate IndexedDB database. It can never overwrite
+// or read a visitor's real saved plan.
+const DB_NAMES: Record<StorageNamespace, string> = {
+  real: 'review-backlog-restart',
+  demo: 'demo:review-backlog-restart',
+};
 const STORE = 'plans';
 const KEY = 'current';
 
-function openDb(): Promise<IDBDatabase> {
+function openDb(namespace: StorageNamespace): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1);
+    const request = indexedDB.open(DB_NAMES[namespace], 1);
     request.onupgradeneeded = () => request.result.createObjectStore(STORE);
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error('Local storage could not be opened.'));
   });
 }
 
-export async function loadState(): Promise<AppState | null> {
-  const db = await openDb();
+export async function loadState(namespace: StorageNamespace = 'real'): Promise<AppState | null> {
+  const db = await openDb(namespace);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE, 'readonly');
     const request = transaction.objectStore(STORE).get(KEY);
@@ -24,8 +31,8 @@ export async function loadState(): Promise<AppState | null> {
   });
 }
 
-export async function saveState(state: AppState): Promise<void> {
-  const db = await openDb();
+export async function saveState(state: AppState, namespace: StorageNamespace = 'real'): Promise<void> {
+  const db = await openDb(namespace);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE, 'readwrite');
     transaction.objectStore(STORE).put(state, KEY);
@@ -34,8 +41,8 @@ export async function saveState(state: AppState): Promise<void> {
   });
 }
 
-export async function clearState(): Promise<void> {
-  const db = await openDb();
+export async function clearState(namespace: StorageNamespace = 'real'): Promise<void> {
+  const db = await openDb(namespace);
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE, 'readwrite');
     transaction.objectStore(STORE).delete(KEY);

@@ -1,0 +1,18 @@
+[
+  {"id":"csv-tsv-import","claim":"Imports supported CSV and TSV card exports","where":"Import section, README","test":"npm run test:claims -- --grep @claim:csv-tsv-import","sandbox":"/demo with shipped sample data, then local CSV and TSV fixtures"},
+  {"id":"three-recovery-plans","claim":"Shows three recovery plans for the backlog","where":"Plan comparison","test":"npm run test:claims -- --grep @claim:three-recovery-plans","sandbox":"/demo"},
+  {"id":"time-box","claim":"Keeps plans inside the daily time box and marks an impossible target","where":"Plan comparison, README","test":"npm run test:claims -- --grep @claim:time-box","sandbox":"/demo with 5 minutes, 30 seconds per card, and a same-day target"},
+  {"id":"risk-flags","claim":"Labels high-risk cards and explains why","where":"Priority table and risk details","test":"npm run test:claims -- --grep @claim:risk-flags","sandbox":"/demo"},
+  {"id":"csv-export","claim":"Exports a tagged action-list CSV","where":"Export action list button, README","test":"npm run test:claims -- --grep @claim:csv-export","sandbox":"/demo; download header and 120 action rows are checked"},
+  {"id":"read-only-import","claim":"Keeps original scheduling fields in the exported action list","where":"Planner and README","test":"npm run test:claims -- --grep @claim:read-only-import","sandbox":"/demo with a local two-row fixture"},
+  {"id":"local-only","claim":"Keeps demo planning requests on the product origin","where":"Landing and Privacy","test":"npm run test:claims -- --grep @claim:local-only","sandbox":"/demo request capture during plan selection"},
+  {"id":"no-tracking","claim":"Uses no cookies or third-party requests during the demo","where":"Privacy","test":"npm run test:claims -- --grep @claim:no-tracking","sandbox":"fresh /demo browser context with request and cookie capture"},
+  {"id":"plan-persistence","claim":"Keeps settings and the chosen plan after reload","where":"Planner and README","test":"npm run test:claims -- --grep @claim:plan-persistence","sandbox":"/demo"},
+  {"id":"json-backup","claim":"Exports and restores a JSON plan backup","where":"Planner and README","test":"npm run test:claims -- --grep @claim:json-backup","sandbox":"/demo"},
+  {"id":"delete-plan","claim":"Deletes a real local plan after confirmation","where":"Start over dialog and Privacy","test":"npm run test:claims -- --grep @claim:delete-plan","sandbox":"starts at /demo, then imports a local fixture into the real planner"},
+  {"id":"offline-reload","claim":"Works offline after the first visit","where":"Landing and README","test":"npm run test:claims -- --grep @claim:offline-reload","sandbox":"fresh /demo context; service worker active, then context.setOffline(true) and reload"},
+  {"id":"free-core","claim":"Creates a sample plan without an account or payment","where":"Landing and Terms","test":"npm run test:claims -- --grep @claim:free-core","sandbox":"fresh /demo context"},
+  {"id":"update-notice","claim":"Shows an update notice when a newer service worker is ready","where":"README","test":"npm run test:claims -- --grep @claim:update-notice","sandbox":"/demo with a locally served newer worker fixture"},
+  {"id":"demo-isolation","claim":"The sample never changes a real saved plan","where":"Demo banner and README","test":"npm run test:claims -- --grep @claim:demo-isolation","sandbox":"real local fixture, then /demo and Start for real in the same browser context"},
+  {"id":"demo-reset","claim":"Reset demo restores the 120-card sample defaults","where":"Demo banner","test":"npm run test:claims -- --grep @claim:demo-reset","sandbox":"/demo"}
+]

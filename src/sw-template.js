@@ -38,13 +38,18 @@ self.addEventListener('fetch', (event) => {
         cache.put(event.request, response.clone());
         return response;
       } catch {
-        return (await caches.match(event.request)) || (await caches.match('/index.html')) || (await caches.match('/offline.html'));
+        const path = url.pathname.replace(/\/$/, '');
+        const routeShell = path === '/demo' ? '/demo/index.html' : '/index.html';
+        return (await caches.match(event.request, { ignoreVary: true })) || (await caches.match(routeShell, { ignoreVary: true })) || (await caches.match('/offline.html', { ignoreVary: true }));
       }
     })());
     return;
   }
   event.respondWith((async () => {
-    const cached = await caches.match(event.request);
+    // Preview/static hosts can add Vary: Origin to precached modules. The
+    // content is same-origin and revisioned, so ignore that response-policy
+    // variation when serving the offline shell.
+    const cached = await caches.match(event.request, { ignoreVary: true });
     if (cached) return cached;
     try {
       const response = await fetch(event.request);

@@ -59,5 +59,6 @@ UI transitions last 180–260 ms and animate only opacity and transform. The her
 - Negative list: no text, no letters, no numbers, no watermark, no logos, no UI screenshot, no realistic people, no hands, no brand symbols, no glossy 3D render, no neon gradient.
 - Generation: Azure OpenAI factory image deployment via `/opt/fleet/lib/gen-image.sh`, 2026-08-27. Original generated asset for this product. The exact prompt is stored beside the source asset in `assets/src/recovery-conservatory.json`.
 - Delivery: reviewed source retained under `assets/src/`; responsive WebP hero variants, each ≤ 300 KB. Generated imagery is disclosed in the footer.
+- Social preview: `public/assets/review-backlog-restart-social.jpg` is a 1200 × 630 center crop of the reviewed original hero, exported with ImageMagick on 2026-09-06. It introduces no new subject, text, logo, or license.
 
 Icons (upload, clock, route, download, warning) are original inline SVG line drawings using current color. PWA icons are hand-authored geometric SVG-derived marks: three paper leaves crossing an amber bridge.

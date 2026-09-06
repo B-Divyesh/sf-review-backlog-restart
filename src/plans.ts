@@ -47,7 +47,10 @@ export function simulatePlans(cards: Card[], settings: Settings, now = new Date(
   ];
   return variants.map((variant) => {
     const unclamped = variant.kind === 'clear' ? needed : Math.max(1, Math.floor(capacity * variant.multiplier));
-    const dailyCards = Math.max(1, variant.kind === 'clear' ? Math.min(needed, capacity) : unclamped);
+    // A short backlog should never be presented as an 83-card day just
+    // because the time box could hold that many cards. The visible workload
+    // must describe work that actually exists in the imported backlog.
+    const dailyCards = Math.max(1, Math.min(cards.length, variant.kind === 'clear' ? Math.min(needed, capacity) : unclamped));
     const ordered = orderCards(cards, variant.kind);
     const planSchedule = schedule(ordered, dailyCards, Math.ceil((dailyCards * settings.secondsPerCard) / 60), now);
     const projectedDays = planSchedule.length;

@@ -1,20 +1,24 @@
 # Review Backlog Restart
 
-Review Backlog Restart is a private, offline-capable planning companion for spaced-repetition learners returning after a break. Import a read-only CSV/TSV copy of overdue Anki cards, set a real daily time limit and target date, compare three recovery routes, then export a day-tagged action list. It does not sync with Anki, replace FSRS, modify scheduling data, or promise retention.
+Plan an overdue Anki review backlog with a daily time limit, risk order, and tagged action list.
 
-Live: <https://review-backlog-restart.sociobot.in>
+It is for spaced-repetition learners returning after a break. Import a read-only CSV or TSV copy, compare three recovery plans, then export what to study first. It does not sync with Anki or predict retention.
 
-## The workflow
+Live site: <https://review-backlog-restart.sociobot.in>
 
-1. Import a UTF-8 CSV or TSV with `Front`, `Due`, and `Interval` headers. Optional `Deck`, `Back`, `Lapses`, `Reviews`, `Ease`, and `Tags` fields improve the output. A matching template and sample deck are available in the app.
-2. Set daily minutes, a target date, and typical seconds per review.
-3. Compare risk-first, balanced, and deadline-first routes. Every route stays inside the stated time box and calls out an impossible deadline.
-4. Export a CSV containing suggested `rbr::day-NN` and `rbr::risk-*` tags alongside the original fields.
-5. Optionally record a daily reviewed count. Export or restore the entire local plan as JSON.
+## Start with the sample
 
-Risk is a transparent triage estimate based on lateness, delay relative to interval, past lapses, and young material. It is not a recall probability.
+Open <https://review-backlog-restart.sociobot.in/demo> or choose **Try it with sample data** on the first screen. The demo loads a 120-card sample in the `demo:review-backlog-restart` IndexedDB database. It never reads or writes the real-plan database. **Reset demo** restores the sample. **Start for real** discards demo data and returns to the real planner.
 
-## Local development
+## Use the planner
+
+1. Import a UTF-8 CSV or TSV with `Front`, `Due`, and `Interval` headers.
+2. Set daily minutes, a target finish date, and your usual seconds per card.
+3. Compare risk-first, steady, and deadline plans.
+4. Export a CSV with day and risk tags beside the original fields.
+5. Export JSON before deleting a real local plan if you want a backup.
+
+## Run locally
 
 Requires Node.js 20 or newer.
 
@@ -23,31 +27,31 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173`.
+Open `http://localhost:5173` for the planner or `http://localhost:5173/demo` for the sample.
 
 ## Test and build
 
 ```sh
 npm test
 npm run build
-```
-
-The production build command is exactly `npm run build`. It type-checks, builds all pages, and creates a versioned service worker. Static output lands in `dist/`, with `dist/index.html` at its root.
-
-The real-browser test covers persistence, CSV download, and an offline reload:
-
-```sh
 npm run test:e2e
 npm run test:e2e:repeat
+npm run test:claims
 ```
 
-Preview the production build with `npm run preview`. Deploy the contents of `dist/` to a static host that serves `/privacy/` and `/terms/` directory indexes and permits the root-scoped `/sw.js` service worker. The build includes both `_headers` and `staticwebapp.config.json`: the latter is the production Azure Static Web Apps configuration used by the factory deploy. Both declare the CSP and clickjacking protection, a manifest MIME type, an update-safe service-worker policy, and immutable caching for `/assets/*`.
+`npm run build` type-checks the app and writes the static PWA to `dist/`. The browser suite checks keyboard use, phone layout, route metadata, JSON recovery, PWA updates, and offline use. The claim suite runs every public claim in `.factory/claims.json` from `/demo`.
 
-## Privacy and offline behavior
+To run one declared claim command, copy its `test` command from `.factory/claims.json`. Each command builds from a clean checkout before opening the demo sandbox.
 
-Imported cards, settings, route choice, and check-ins are stored only in this browser’s IndexedDB. There is no account, analytics, third-party runtime script, CDN font, or deck upload. The app shell is precached after the first visit and the saved plan remains usable offline. Use “Export data” for a portable JSON backup or “Start over” to delete local plan data.
+## Privacy and offline use
 
-See [the product brief](.factory/brief.json), [visual system](.factory/design.md), [privacy policy](privacy/index.html), and [terms](terms/index.html).
+Imported card data, settings, plans, and daily records stay in IndexedDB in this browser. The app has no account, analytics, third-party runtime scripts, CDN fonts, or cookies. After the first visit, the service worker caches the app shell for offline reloads. The sample and the real planner use separate local databases.
+
+## Static deployment
+
+Deploy the contents of `dist/` to the factory static host. Keep `staticwebapp.config.json` and `_headers` with the files. They provide the designed 404 response, security headers, manifest MIME type, service-worker update policy, and immutable caching for hashed assets.
+
+See [the product brief](.factory/brief.json), [the visual system](.factory/design.md), [the demo guide](.factory/demo.md), [privacy](privacy/index.html), and [terms](terms/index.html).
 
 ## License
 

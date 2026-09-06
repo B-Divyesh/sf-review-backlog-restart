@@ -12,43 +12,47 @@ async function expectNoAxeViolations(page: import('@playwright/test').Page): Pro
   expect(violations).toEqual([]);
 }
 
-test('desktop pages retain semantic, accessible planner states', async ({ page }) => {
-  await page.goto('/');
-  await expect(page).toHaveTitle(/Review Backlog Restart/);
-  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await expect(page.locator('main')).toHaveCount(1);
-  await expect(page.locator('h1')).toHaveCount(1);
-  await expectNoAxeViolations(page);
-
-  await page.getByRole('button', { name: /Try the sample deck/ }).click();
-  await expect(page.locator('.plan-card')).toHaveCount(3);
-  await expectNoAxeViolations(page);
-
-  for (const path of ['/privacy/', '/terms/']) {
+test('routes have semantic structure, plain titles, and accessible states', async ({ page }) => {
+  for (const [path, title] of [['/', /plan an overdue review backlog/], ['/demo', /^Demo — Review Backlog Restart$/], ['/privacy/', /^Privacy — Review Backlog Restart$/], ['/terms/', /^Terms — Review Backlog Restart$/], ['/404.html', /^Page not found — Review Backlog Restart$/]] as const) {
     await page.goto(path);
+    await expect(page).toHaveTitle(title);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('main')).toHaveCount(1);
     await expect(page.locator('h1')).toHaveCount(1);
     await expectNoAxeViolations(page);
   }
 });
 
-test('390px keyboard journey has no horizontal overflow and saves a route', async ({ browser }) => {
+test('landing metadata includes a canonical social preview and demo entry', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://review-backlog-restart.sociobot.in/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /review-backlog-restart-social\.jpg$/);
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
+  await page.getByRole('button', { name: /Try it with sample data/ }).click();
+  await expect(page).toHaveURL(/\/demo$/);
+  await expect(page.locator('.demo-banner')).toContainText('nothing is saved');
+  await expect(page.locator('.stats')).toContainText('120');
+});
+
+test('390px keyboard journey has no horizontal overflow and 44px controls', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true });
   const page = await context.newPage();
-  await page.goto('/');
+  await page.goto('/demo');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth && document.body.scrollWidth <= window.innerWidth)).toBe(true);
-
   await page.keyboard.press('Tab');
   await expect(page.locator('.skip-link')).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/#main$/);
-
-  await page.getByRole('button', { name: /Try the sample deck/ }).click();
-  const protect = page.locator('input[value="protect"]');
-  await protect.focus();
+  await expect(page.locator('#main')).toBeFocused();
+  await page.locator('input[value="protect"]').focus();
   await page.keyboard.press('Space');
   await expect(page.locator('.plan-card.selected .plan-name')).toHaveText('Protect memory');
-  await expect(page.getByRole('button', { name: /Export tagged action list/ })).toBeEnabled();
+  const tooSmall = await page.locator('button:visible, a:visible, summary:visible').evaluateAll((elements) => elements
+    .filter((element) => {
+      const box = element.getBoundingClientRect();
+      return box.width < 44 || box.height < 44;
+    })
+    .map((element) => ({ text: (element.textContent ?? '').trim(), width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height })));
+  expect(tooSmall).toEqual([]);
   await expectNoAxeViolations(page);
   await context.close();
 });

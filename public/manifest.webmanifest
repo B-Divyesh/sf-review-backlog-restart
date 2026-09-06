@@ -3,7 +3,7 @@
   "short_name": "Backlog Restart",
   "description": "A private, local plan for returning to an overdue spaced-repetition deck.",
   "id": "/",
-  "start_url": "/?source=installed&v=1",
+  "start_url": "/?source=installed&v=2",
   "scope": "/",
   "display": "standalone",
   "background_color": "#101A23",

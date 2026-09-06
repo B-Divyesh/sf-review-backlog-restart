@@ -1,15 +1,9 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": [
-      "/assets/*",
-      "/icons/*",
-      "/privacy/*",
-      "/terms/*",
-      "/sw.js",
-      "/manifest.webmanifest",
-      "/*.{css,js,png,jpg,svg,webp,ico,woff2,json,txt,xml,wasm}"
-    ]
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html",
+      "statusCode": 404
+    }
   },
   "globalHeaders": {
     "Content-Security-Policy": "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; form-action 'self'; frame-ancestors 'none'",

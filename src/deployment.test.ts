@@ -11,6 +11,7 @@ const staticWebAppConfig = JSON.parse(readFileSync(new URL('public/staticwebapp.
   globalHeaders: Record<string, string>;
   routes: Array<{ route: string; headers: Record<string, string> }>;
   mimeTypes: Record<string, string>;
+  responseOverrides: Record<string, { rewrite: string; statusCode: number }>;
 };
 
 function routeHeaders(route: string): Record<string, string> {
@@ -48,6 +49,12 @@ describe('static deployment response policy', () => {
     expect(appSource).not.toContain('style="');
   });
 
+  it('keeps the direct demo route available from the offline cache', () => {
+    const workerTemplate = readFileSync(new URL('src/sw-template.js', root), 'utf8');
+    expect(workerTemplate).toContain("path === '/demo' ? '/demo/index.html' : '/index.html'");
+    expect(workerTemplate).toContain('ignoreVary: true');
+  });
+
   it('maps the portable response policy to the Azure Static Web Apps deployment configuration', () => {
     expect(routeHeaders('/assets/*')['Cache-Control']).toBe('public, max-age=31536000, immutable');
     expect(routeHeaders('/sw.js')['Cache-Control']).toBe('no-cache');
@@ -57,5 +64,7 @@ describe('static deployment response policy', () => {
     expect(staticWebAppConfig.globalHeaders['Content-Security-Policy']).toContain("frame-ancestors 'none'");
     expect(staticWebAppConfig.globalHeaders['Permissions-Policy']).toContain('camera=()');
     expect(staticWebAppConfig.globalHeaders['X-Frame-Options']).toBe('DENY');
+    expect(staticWebAppConfig.responseOverrides['404'].rewrite).toBe('/404.html');
+    expect(staticWebAppConfig.responseOverrides['404'].statusCode).toBe(404);
   });
 });
