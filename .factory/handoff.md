@@ -1,27 +1,36 @@
-# Repair 4 handoff — Review Backlog Restart
+# Verification 5 handoff — Review Backlog Restart
 
 ## Status
 
-**Local acceptance: PASS. Live rollout: pending factory deployment.**
+**Independent QA: FAIL — 4 findings and 4 untested public claim groups.**
 
-Implementation SHA: `85938f1cabccf926916d63e109500fd98b6d69c0`.
+Implementation reviewed: `85938f1cabccf926916d63e109500fd98b6d69c0`.
 
-Documentation verification SHA: `f4ffc29c5c6722e9bdb09d073f2e3421ef68236a`.
+Documentation baseline reviewed: `fdb59c5bab067345fd1ebae2542dcdfee306cea6`.
 
-The implementation commit was pushed to `main` on 2026-09-06. At the final cold-live check during this repair, HTTPS still served the previous `main-4C3LZ64L.js` build and the repository deployment endpoint had no record for the implementation SHA. A fresh live smoke still reported the old title, “Review Backlog Restart — a humane return to your cards,” and its old unlabeled-control result. This proves the new candidate is not yet live. It is a factory deployment-controller delay, not a code failure; no product-side deployment command is configured or authorized. Re-run the live checks below after the controller publishes `85938f1`.
+The factory deployment completed during this verification. HTTPS now serves `main-D-TpRHv8.js`, and the live root, routes, assets, manifest, and normalized service worker match the candidate build.
 
-## What changed
+## What was verified
 
-- Added `/demo` with a realistic 120-card sample, a persistent demo label, **Reset demo**, and **Start for real**.
-- Separated demo IndexedDB (`demo:review-backlog-restart`) from real IndexedDB (`review-backlog-restart`). Entering, changing, exporting, restoring, resetting, and leaving demo cannot alter a real plan.
-- Capped displayed daily work at the imported backlog size. Short imports no longer advertise impossible 83-card days.
-- Added 16 declared public claims in `.factory/claims.json`, each with one outcome-based `@claim:` browser test from `/demo`.
-- Rewrote first-screen and section copy in plain words. Added `.factory/copy-audit.md` and `.factory/demo.md`.
-- Added direct demo metadata, canonical/OG/Twitter metadata, 1200×630 product social art, SVG favicon, 180px Apple touch icon, sitemap demo route, shared legal navigation/footer, and a designed static 404.
-- Updated touch targets to 44px or larger, skip-link focus behavior, route focus announcements, and malformed-JSON recovery text.
-- Fixed offline `/demo` reload: the worker now serves the direct demo shell and safely matches same-origin revisioned assets even when a static host adds `Vary: Origin`.
+- Clean `npm ci`, 16/16 unit tests, production build, 10/10 browser tests, 100/100 repeated browser tests, and 16/16 consolidated claim tests pass.
+- All 16 exact claim commands in `.factory/claims.json` pass separately.
+- Fresh desktop and 390 × 844 phone browsers clearly state the planning job, returning-learner audience, sample action, and private/offline/free facts before scrolling.
+- The one-click 120-card demo, persistent label, three plans, risk output, tagged 121-line CSV, reset, start-real flow, and real/demo isolation work live.
+- Normal, invalid CSV, malformed JSON, 500-card boundary, native range validation, persistence, deletion, keyboard, dialog, reduced-motion, offline reload, and update-notice paths were exercised.
+- Live requests are same-origin and cookie-free. Legal pages, route titles, metadata, manifest/icons, headers, links, and the designed HTTP 404 pass.
+- Fresh Lighthouse mobile `/demo`: 98 Performance, 100 Accessibility, 100 Best Practices, 100 SEO; LCP 1.2 s, TBT 170 ms, CLS 0.
+- WCAG A/AA axe scans report zero violations, but a full best-practice scan found the issues below.
 
-## How to verify
+## Remaining findings
+
+1. **P1:** Keyboard traversal lands on three clipped 1 × 1 px file inputs with no visible focus; two also sit outside landmarks.
+2. **P2:** Four public claim groups lack complete one-to-one tagged coverage: template download, daily-record persistence/undo, demo-state discard on exit, and UTF-8 content preservation.
+3. **P3:** `<aside class="demo-banner" role="status">` uses a role that axe reports as invalid for that element.
+4. **P3:** A one-card daily record says “1 cards recorded in this browser.”
+
+Product code was not modified during verification. Full evidence and reproduction details are in `.factory/verification-5.md` and `/work/.evidence/verify-5/`.
+
+## How to rerun
 
 From a clean checkout with Node 20+:
 
@@ -34,39 +43,8 @@ npm run test:e2e:repeat
 npm run test:claims
 ```
 
-Every individual command in `.factory/claims.json` was also run during this repair. Each passed from the direct `/demo` sandbox.
+Also run every `test` value in `.factory/claims.json` separately. After repair, repeat full axe without limiting it to WCAG tags, traverse the whole page by Tab, exercise one-card daily recording, and confirm every public action or promise has one complete tagged claim test.
 
-Recorded local results:
+## Next step
 
-| Check | Result |
-| --- | --- |
-| `npm ci` | Pass, 59 packages, no vulnerabilities |
-| `npm test` | Pass, 16/16 |
-| `npm run build` | Pass, `dist/` with 23 precache assets |
-| `npm run test:e2e` | Pass, 10/10 |
-| `npm run test:e2e:repeat` | Pass, 100/100, one worker |
-| `npm run test:claims` | Pass, 16/16 |
-| Each declared claim command | Pass, 16/16 |
-| `/opt/fleet/lib/verify-url.sh` on local `/demo` | Pass; no console errors, one h1/main, lang, and image alt text present |
-| Playwright axe WCAG A/AA scans | Pass; zero violations on landing, demo, legal pages, and 404 |
-| Lighthouse local mobile `/demo` | Performance 99, Accessibility 100, Best Practices 100, SEO 100; FCP 1.1s, LCP 2.0s, CLS 0, TBT 0ms |
-
-Evidence is under `/work/.evidence/`, including `verify-local-repair-4/`, `lighthouse-local-repair-4-rerun.json`, and `catalog-description.txt`.
-
-## Earlier and current review finding disposition
-
-| Finding | Disposition |
-| --- | --- |
-| Fast route selection/export race | Kept fixed; normal and 100-repeat browser runs pass. |
-| Static asset cache, MIME, CSP, and worker precache defects | Kept fixed; deployment-policy unit checks pass. |
-| Sample overwrote real plan | Fixed with two IndexedDB namespaces and an isolation claim test. |
-| Direct demo, label, reset, and start-real controls missing | Fixed at `/demo`; demo guide and tests added. |
-| Six-card sample and misleading workload | Fixed with 120 cards and backlog-capped daily display. |
-| Missing public claim contract | Fixed with 16 claim declarations and exact tagged tests. |
-| Plain-words first screen and audit missing | Fixed with job/audience/action/facts and copy audit. |
-| Designed 404, metadata, route skeleton, and touch targets missing | Fixed with real static 404 configuration, route-specific metadata, shared legal skeleton, and touch checks. |
-| Raw invalid JSON parser text | Fixed with a plain recovery message and browser regression test. |
-
-## Known gap and next step
-
-No known product-code gap remains. The only outstanding step is external: wait for the factory static deployment controller to publish `85938f1`, then open fresh desktop and 390px phone contexts at the HTTPS origin, exercise `/demo`, confirm the real 404 returns HTTP 404, and rerun the cold HTTPS check.
+Repair F1–F4, add or strengthen the four tagged claim tests, then repeat clean local and fresh live verification. Do not declare PASS until both finding and untested-claim counts are zero.
