@@ -1,17 +1,22 @@
-# Verification handoff — Review Backlog Restart
+# Review 1 handoff — Review Backlog Restart
 
-## Release status: **PASS**
+## Status: **FAIL**
 
-Candidate verified: `da22ff1b0aa0418395bef867597399eb8576e803`
+Independent review report: `.factory/review-1.md`
 
-Live URL verified: <https://review-backlog-restart.sociobot.in/>
-Full evidence: `.factory/verification-4.md` (2026-08-28).
+Implementation reviewed: `924dd8f2ffdb1258659ed9ca5f41da35cde276ee`
 
-This was an independent, clean-worktree verification; no product code changed. `npm ci`, `npm test` (14/14), exact `npm run build`, `npm run test:e2e` (8/8), and `npm run test:e2e:repeat` (80/80) pass. The live deployment matched candidate HTML, manifest, and main JS byte-for-byte; its service worker matched after normalization of its generated cache-version token.
+Documentation SHA reviewed: `91b644401556e2e5b88a9b4da847cc148c80d5db`
 
-The complete product flow, invalid-import recovery, workload boundary behavior, desktop/mobile keyboard use, reduced motion, axe scans, local-first storage, offline reload, service-worker update notice, privacy/network posture, headers, cache policy, manifest MIME, and bundle budgets passed. Fresh mobile Lighthouse: 100 Performance, 100 Accessibility, 100 Best Practices, 100 SEO.
+Live URL: <https://review-backlog-restart.sociobot.in/>
 
-## How to verify
+No product code was changed. The review found **9 grouped findings** and **14 untested public claim groups**, so the result is unambiguously FAIL.
+
+The main planner is stable: clean install, 14/14 unit tests, production build, 8/8 browser tests, and 80/80 repeated browser tests passed. Live desktop and phone use, CSV export, JSON backup/restore, invalid import recovery, 500-card boundaries, persistence, reset, keyboard use, axe scans, reduced motion, same-origin privacy behavior, service-worker control, and offline reload were exercised. Fresh mobile Lighthouse scored 100 in Performance, Accessibility, Best Practices, and SEO.
+
+The release still fails because the sample shares and can overwrite real IndexedDB state, no direct or labeled demo sandbox exists, the six-card sample produces misleading daily-load numbers, `.factory/claims.json` and all claim-tagged tests are absent, the first screen and headings violate the plain-words contract, a real 404 is missing, metadata/route structure are incomplete, several touch targets are under 44 px, and invalid JSON exposes a raw parser message. `.factory/demo.md` and `.factory/copy-audit.md` are also missing.
+
+## Reproduce the clean gates
 
 ```sh
 npm ci
@@ -21,8 +26,19 @@ npm run test:e2e
 npm run test:e2e:repeat
 ```
 
-Deploy `dist/` only. Azure Static Web Apps consumes `staticwebapp.config.json` as host configuration; the service worker deliberately excludes that file and `/_headers` from its browser precache.
+## Evidence
 
-## Defects / known gaps
+- Full findings and earlier-finding disposition: `.factory/review-1.md`
+- Required copy: `/work/.evidence/qa-report.md`
+- Machine result: `/work/.evidence/qa-result.json`
+- Browser captures: `/work/.evidence/live-*-first-screen.png` and `/work/.evidence/live-*-sample.png`
+- Runtime artifacts: `/work/.evidence/live-sample-export.csv`, `/work/.evidence/live-sample-backup.json`, `/work/.evidence/verify-url/verify.json`, and `/work/.evidence/lighthouse.json`
 
-None found. First online use is required before the app shell can serve a later offline reload; that is expected PWA behavior.
+## Next steps
+
+1. Separate demo and real storage, add `/demo`, persistent demo labeling, reset/start-for-real controls, and a realistic 100+ card sample.
+2. Add `.factory/claims.json` and exactly tagged clean-demo tests for every retained public claim.
+3. Rewrite the first screen, title, headings, README, and legal copy in task-naming plain words; add `.factory/copy-audit.md`.
+4. Add the designed 404, metadata/social image, route titles/sitemap entries, consistent header/footer, and build id.
+5. Enlarge all interactive targets to at least 44 px and replace the raw JSON parser error.
+6. Re-run every gate and the live desktop/phone review. Do not declare PASS until findings and untested claims are both zero.
